@@ -6,6 +6,7 @@ python amc_search.py \
     --lbound=0.2 \
     --rbound=1 \
     --reward=acc_reward \
-    --data_root=/dataset/imagenet \
+    --use_real_val \
+    --data_root=/mnt/imagenet/raw_jpeg/2012 \
     --ckpt_path=./checkpoints/mobilenet_imagenet.pth.tar \
     --seed=2018

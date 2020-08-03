@@ -83,8 +83,11 @@ def get_model_and_checkpoint(model, dataset, checkpoint_path, n_gpu=1):
         from models.mobilenet import MobileNet
         net = MobileNet(n_class=1000)
     elif model == 'mobilenetv2' and dataset == 'imagenet':
-        from models.mobilenet_v2 import MobileNetV2
-        net = MobileNetV2(n_class=1000)
+        #from models.mobilenet_v2 import MobileNetV2
+        #net = MobileNetV2(n_class=1000)
+        from torchvision.models.mobilenet import MobileNetV2
+        net = MobileNetV2(num_classes=1000)        
+        
     else:
         raise NotImplementedError
     sd = torch.load(checkpoint_path)

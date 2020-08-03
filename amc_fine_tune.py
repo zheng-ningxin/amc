@@ -22,7 +22,8 @@ from lib.net_measure import measure_model
 
 def parse_args():
     parser = argparse.ArgumentParser(description='AMC fine-tune script')
-    parser.add_argument('--model', default='mobilenet', type=str, help='name of the model to train')
+    parser.add_argument('--jitpath', default=None, type=str, help='Path of the torchscript')
+    parser.add_argument('--model', default=None, type=str, help='Name of the model to train')
     parser.add_argument('--dataset', default='imagenet', type=str, help='name of the dataset to train')
     parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
     parser.add_argument('--n_gpu', default=1, type=int, help='number of GPUs to use')
@@ -43,6 +44,11 @@ def parse_args():
 
 def get_model():
     print('=> Building model..')
+    # use the torchscripe object to load the saved model
+    if args.jitpath is not None and os.path.exists(args.jitpath):
+        net = torch.jit.load(args.jitpath)
+        return net.cuda() if use_cuda else net
+    # create the model from scrach 
     if args.model == 'mobilenet':
         from models.mobilenet import MobileNet
         net = MobileNet(n_class=1000)
@@ -192,7 +198,7 @@ if __name__ == '__main__':
     del net
     net = get_model()  # real training
 
-    if args.ckpt_path is not None:  # assigned checkpoint path to resume from
+    if not args.jitpath and args.ckpt_path is not None:  # assigned checkpoint path to resume from
         print('=> Resuming from checkpoint..')
         checkpoint = torch.load(args.ckpt_path)
         sd = checkpoint['state_dict'] if 'state_dict' in checkpoint else checkpoint

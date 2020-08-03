@@ -94,12 +94,18 @@ class ChannelPruningEnv:
             preserve_idx = None
 
         # prune and update action
+        #print('=========================================')
+        #print(action)
         action, d_prime, preserve_idx = self.prune_kernel(self.prunable_idx[self.cur_ind], action, preserve_idx)
-
+        #print(action)
+        #print(d_prime)
+        #print(preserve_idx)
         if not self.visited[self.cur_ind]:
             for group in self.shared_idx:
                 if self.cur_ind in group:  # set the shared ones
+                    #print(group)
                     for g_idx in group:
+                        #print(g_idx)
                         self.strategy_dict[self.prunable_idx[g_idx]][0] = action
                         self.strategy_dict[self.prunable_idx[g_idx - 1]][1] = action
                         self.visited[g_idx] = True
@@ -138,6 +144,16 @@ class ChannelPruningEnv:
             obs = self.layer_embedding[self.cur_ind, :].copy()  # actually the same as the last state
             done = True
             if self.export_model:  # export state dict
+                copy_m = copy.deepcopy(self.model)
+                copy_m_list = list(copy_m.modules())
+                # restore the original forward function
+                for idx in self.prunable_idx + self.buffer_idx:  # get all
+                    layer = copy_m_list[idx]
+                    layer.forward = layer.old_forward  
+                    
+                #copy_m.forward = copy_m.old_forward 
+                script_model = torch.jit.script(copy_m)
+                torch.jit.save(script_model,'checkpoints/jit_mobilenetv2.pth')
                 torch.save(self.model.state_dict(), self.export_path)
                 return None, None, None, None
             return obs, reward, done, info_set
@@ -186,10 +202,9 @@ class ChannelPruningEnv:
         assert (preserve_ratio <= 1.)
 
         if preserve_ratio == 1:  # do not prune
-            return 1., op.weight.size(1), None  # TODO: should be a full index
-            # n, c, h, w = op.weight.size()
-            # mask = np.ones([c], dtype=bool)
-
+            n, c, h, w = op.weight.size()
+            mask = np.ones([c], dtype=bool)
+            return 1., op.weight.size(1), mask  # TODO: should be a full index
         def format_rank(x):
             rank = int(np.around(x))
             return max(rank, 1)

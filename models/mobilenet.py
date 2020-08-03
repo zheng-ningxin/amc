@@ -38,6 +38,9 @@ class MobileNet(nn.Module):
         elif profile == '0.5flops':
             in_planes = 24
             cfg = [48, (96, 2), 80, (192, 2), 200, (328, 2), 352, 368, 360, 328, 400, (736, 2), 752]
+            ##vi-nizhen
+            in_planes = 24 
+            cfg = [48, (88, 2), 88, (176, 2), 176, (352, 2), 368, 376, 376, 384, 368, (608, 2), 520]
         else:
             raise NotImplementedError
 

@@ -3,11 +3,11 @@ python -W ignore amc_fine_tune.py \
     --dataset=imagenet \
     --lr=0.05 \
     --n_gpu=4 \
-    --batch_size=256 \
-    --n_worker=32 \
-    --lr_type=cos \
-    --n_epoch=150 \
+    --batch_size=1024 \
+    --n_worker=22 \
+    --lr_type=exp \
+    --n_epoch=200 \
     --wd=4e-5 \
     --seed=2018 \
-    --data_root=/dataset/imagenet \
-    --ckpt_path=./checkpoints/mobilenet_0.5flops_export.pth.tar
+    --data_root=/mnt/imagenet/raw_jpeg/2012 \
+    --ckpt_path=./checkpoints/znx_mobilenet_0.5flops_export.pth.tar
