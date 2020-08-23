@@ -15,7 +15,7 @@ import numpy as np
 
 from tensorboardX import SummaryWriter
 
-from lib.utils import accuracy, AverageMeter, progress_bar, get_output_folder
+from lib.utils import accuracy, AverageMeter, get_output_folder
 from lib.data import get_dataset
 from lib.net_measure import measure_model
 
@@ -27,7 +27,7 @@ def parse_args():
     parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
     parser.add_argument('--n_gpu', default=1, type=int, help='number of GPUs to use')
     parser.add_argument('--batch_size', default=128, type=int, help='batch size')
-    parser.add_argument('--n_worker', default=4, type=int, help='number of data loader worker')
+    parser.add_argument('--n_worker', default=24, type=int, help='number of data loader worker')
     parser.add_argument('--lr_type', default='exp', type=str, help='lr scheduler (exp/cos/step3/fixed)')
     parser.add_argument('--n_epoch', default=150, type=int, help='number of epochs to train')
     parser.add_argument('--wd', default=4e-5, type=float, help='weight decay')
@@ -83,12 +83,12 @@ def train(epoch, train_loader):
         batch_time.update(time.time() - end)
         end = time.time()
 
-        progress_bar(batch_idx, len(train_loader), 'Loss: {:.3f} | Acc1: {:.3f}% | Acc5: {:.3f}%'
-                     .format(losses.avg, top1.avg, top5.avg))
+        #progress_bar(batch_idx, len(train_loader), 'Loss: {:.3f} | Acc1: {:.3f}% | Acc5: {:.3f}%'
+        #             .format(losses.avg, top1.avg, top5.avg))
     writer.add_scalar('loss/train', losses.avg, epoch)
     writer.add_scalar('acc/train_top1', top1.avg, epoch)
     writer.add_scalar('acc/train_top5', top5.avg, epoch)
-
+    print('Epoch', epoch, '  Acc', top1.avg)
 
 def test(epoch, test_loader, save=True):
     global best_acc
@@ -116,8 +116,8 @@ def test(epoch, test_loader, save=True):
             batch_time.update(time.time() - end)
             end = time.time()
 
-            progress_bar(batch_idx, len(test_loader), 'Loss: {:.3f} | Acc1: {:.3f}% | Acc5: {:.3f}%'
-                         .format(losses.avg, top1.avg, top5.avg))
+            #progress_bar(batch_idx, len(test_loader), 'Loss: {:.3f} | Acc1: {:.3f}% | Acc5: {:.3f}%'
+            #             .format(losses.avg, top1.avg, top5.avg))
 
     if save:
         writer.add_scalar('loss/test', losses.avg, epoch)
@@ -138,6 +138,7 @@ def test(epoch, test_loader, save=True):
             'acc': top1.avg,
             'optimizer': optimizer.state_dict(),
         }, is_best, checkpoint_dir=log_dir)
+    print('Epoch', epoch, '  Acc', top1.avg)
 
 
 def adjust_learning_rate(optimizer, epoch):
